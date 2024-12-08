@@ -12,11 +12,11 @@ export default defineConfig({
     target: "node18",
     outDir: "dist",
     rollupOptions: {
-      input: "src/app.ts",
+      input: "src/index.ts",
       output: {
         inlineDynamicImports: true,
-        format: "cjs",
-        entryFileNames: "app.js",
+        format: 'cjs',
+        entryFileNames: "function.js",
       },
     },
   },

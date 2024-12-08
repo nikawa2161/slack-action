@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import { DateTime } from "luxon";
 import { SEARCH_TERMS, TARGET_CHANNEL_ID, DAYS_AGO } from "@/constants/";
 import {
@@ -17,7 +18,6 @@ async function main() {
     sortedNonCreatorReplies,
   } = await calculateRankings(channelIds, oneMonthAgo);
 
-  // ブロック生成
   const threadReactionsBlocks = createRankingBlocks(
     "スタンプ獲得ランキング（トップ3）",
     sortedThreadReactions
@@ -42,4 +42,16 @@ async function main() {
   await sendSlackMessage(TARGET_CHANNEL_ID, blocks);
 }
 
-main().catch(console.error);
+// Cloud Functionsエントリーポイント
+exports.runTask = async (req: Request, res: Response) => {
+  console.log(req);
+  console.log(res);
+
+  try {
+    await main();
+    res.status(200).send("Task executed successfully");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error running task");
+  }
+};

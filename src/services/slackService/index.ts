@@ -47,11 +47,11 @@ export async function sendSlackMessage(
   blocks: any[]
 ): Promise<void> {
   // Slackへ投稿しない場合は以下コメントアウト
-  const result = await web.chat.postMessage({
-    channel: channelId,
-    blocks: blocks,
-  });
-  console.log("Message sent: ", result.ts);
-
+  // const result = await web.chat.postMessage({
+  //   channel: channelId,
+  //   blocks: blocks,
+  // });
+  // console.log("Message sent: ", result.ts);
+  console.log(channelId);
   console.log("Blocks prepared (not sent):", blocks);
 }

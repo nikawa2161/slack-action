@@ -1,4 +1,16 @@
-node_modules
+# Node.js関連
+node_modules/
+
+# 環境変数ファイル（例外として.env.exampleは含む）
 *.env.*
 !.env.example
-dist
+
+# ビルド成果物
+dist/
+
+# Terraform関連
+*.tfvars
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+.terraform.lock.hcl
