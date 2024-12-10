@@ -17,7 +17,6 @@ const distPackageJson = {
   name: basePackageJson.name,
   version: basePackageJson.version,
   main: "function.js",
-  type: basePackageJson.type,
   dependencies: basePackageJson.dependencies,
 };
 

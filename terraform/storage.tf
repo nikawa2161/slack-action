@@ -5,7 +5,7 @@ resource "google_storage_bucket" "task_bucket" {
 }
 
 resource "google_storage_bucket_object" "task_script" {
-  name   = "function-source.zip"
+  name   = "function-${timestamp()}.zip"
   bucket = google_storage_bucket.task_bucket.name
   source = "${path.module}/../dist/function-source.zip"
 }

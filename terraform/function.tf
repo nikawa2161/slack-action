@@ -8,7 +8,8 @@ resource "google_cloudfunctions_function" "task_function" {
     google_project_service.cloud_functions_api,
     google_project_service.artifact_registry_api,
     google_project_service.cloud_build_api,
-    google_project_service.cloud_scheduler_api
+    google_project_service.cloud_scheduler_api,
+    google_storage_bucket_object.task_script
   ]
 
   name        = var.function_name
