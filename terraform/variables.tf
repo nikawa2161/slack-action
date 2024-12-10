@@ -35,7 +35,8 @@ variable "function_description" {
 
 variable "scheduler_cron" {
   type        = string
-  default     = "*/5 * * * *"
+#   default     = "*/3 * * * *"
+  default     = "0 0 1 1 *"
   description = "Cloud SchedulerジョブのCron形式のスケジュール"
 }
 

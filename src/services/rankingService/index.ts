@@ -3,14 +3,15 @@ import { getMessages, getReplies } from "../slackService";
 
 export async function calculateRankings(
   channelIds: string[],
-  oldest: number
+  oldest: number,
+  latest: number
 ): Promise<RankingResults> {
   const threadReactionCounts: Record<string, number> = {};
   const userReactionCounts: Record<string, number> = {};
   const nonCreatorReplyCounts: Record<string, Set<string>> = {};
 
   for (const channelId of channelIds) {
-    const messages = await getMessages(channelId, oldest);
+    const messages = await getMessages(channelId, oldest, latest);
 
     for (const message of messages) {
       // スレッド作成者へのスタンプ数集計
@@ -75,12 +76,12 @@ export async function calculateRankings(
 export function createRankingBlocks(
   title: string,
   data: [string, number][]
-): any[] {
+): Object[] {
   return [
     {
-      type: "header",
+      type: "section",
       text: {
-        type: "plain_text",
+        type: "mrkdwn",
         text: title,
       },
     },
@@ -88,7 +89,48 @@ export function createRankingBlocks(
       type: "section",
       text: {
         type: "mrkdwn",
-        text: data.map(([user, count]) => `<@${user}>: ${count}回`).join("\n"),
+        text:
+          data.length > 0
+            ? data
+                .map(
+                  ([user, count], index) =>
+                    `${index + 1}位: <@${user}>: ${count}回`
+                )
+                .join("\n")
+            : "該当者なし…！！",
+      },
+    },
+    {
+      type: "divider",
+    },
+  ];
+}
+
+export function createOpeningMessageBlocks(
+  startDate: string,
+  endDate: string
+): Object[] {
+  return [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `🎉 *${startDate}～${endDate}の間で、リアクション数トップの皆さんを表彰します* 🎉`,
+      },
+    },
+    {
+      type: "divider",
+    },
+  ];
+}
+
+export function createClosingMessageBlocks(): Object[] {
+  return [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: "🔥 次回も積極的にリアクションして、さらに盛り上げていきましょう！ 💪",
       },
     },
     {

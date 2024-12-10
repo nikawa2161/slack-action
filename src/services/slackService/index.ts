@@ -21,11 +21,13 @@ export async function getChannels(
 
 export async function getMessages(
   channelId: string,
-  oldest: number
+  oldest: number,
+  latest: number
 ): Promise<SlackMessage[]> {
   const response = await web.conversations.history({
     channel: channelId,
     oldest: oldest.toString(),
+    latest: latest.toString(),
   });
 
   return (response.messages || []) as SlackMessage[];
@@ -46,12 +48,10 @@ export async function sendSlackMessage(
   channelId: string,
   blocks: any[]
 ): Promise<void> {
-  // Slackへ投稿しない場合は以下コメントアウト
-  // const result = await web.chat.postMessage({
-  //   channel: channelId,
-  //   blocks: blocks,
-  // });
-  // console.log("Message sent: ", result.ts);
-  console.log(channelId);
-  console.log("Blocks prepared (not sent):", blocks);
+  // Slackへ投稿しない場合コメントアウト
+  const result = await web.chat.postMessage({
+    channel: channelId,
+    blocks: blocks,
+  });
+  console.log("Message sent: ", result.ts);
 }

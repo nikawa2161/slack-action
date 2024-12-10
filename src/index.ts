@@ -3,12 +3,20 @@ import { DateTime } from "luxon";
 import { SEARCH_TERMS, TARGET_CHANNEL_ID, DAYS_AGO } from "@/constants/";
 import {
   calculateRankings,
+  createClosingMessageBlocks,
+  createOpeningMessageBlocks,
   createRankingBlocks,
 } from "@/services/rankingService";
 import { getChannels, sendSlackMessage } from "@/services/slackService";
 
 async function main() {
-  const oneMonthAgo = DateTime.now().minus({ days: DAYS_AGO }).toSeconds();
+  const now = DateTime.now();
+  const startOfLastMonth = now.minus({ months: 1 }).startOf("month");
+  const endOfLastMonth = now.minus({ months: 1 }).endOf("month");
+
+  const startDateFormatted = startOfLastMonth.toFormat("yyyy/MM/dd");
+  const endDateFormatted = endOfLastMonth.toFormat("yyyy/MM/dd");
+
   const channels = await getChannels(SEARCH_TERMS);
   const channelIds = channels.map((c) => c.id);
 
@@ -16,27 +24,32 @@ async function main() {
     sortedThreadReactions,
     sortedUserReactions,
     sortedNonCreatorReplies,
-  } = await calculateRankings(channelIds, oneMonthAgo);
+  } = await calculateRankings(
+    channelIds,
+    startOfLastMonth.toSeconds(),
+    endOfLastMonth.toSeconds()
+  );
 
   const threadReactionsBlocks = createRankingBlocks(
-    "スタンプ獲得ランキング（トップ3）",
+    `🏆*最もリアクションを獲得したトップ${sortedThreadReactions.length}は、この方達です！*`,
     sortedThreadReactions
   );
 
   const userReactionsBlocks = createRankingBlocks(
-    "スタンプを押したユーザーランキング（トップ3）",
+    `✋*最もリアクションして盛り上げたトップ${sortedUserReactions.length}は、この方達です！*📈`,
     sortedUserReactions
   );
 
   const nonCreatorRepliesBlocks = createRankingBlocks(
-    "返信したユーザーランキング（トップ3）",
+    `💬 *最も返信で会話を動かしたトップ${sortedNonCreatorReplies.length}は、この方達です！* 🚀`,
     sortedNonCreatorReplies
   );
-
   const blocks = [
+    ...createOpeningMessageBlocks(startDateFormatted, endDateFormatted),
     ...threadReactionsBlocks,
     ...userReactionsBlocks,
     ...nonCreatorRepliesBlocks,
+    ...createClosingMessageBlocks(),
   ];
 
   await sendSlackMessage(TARGET_CHANNEL_ID, blocks);
