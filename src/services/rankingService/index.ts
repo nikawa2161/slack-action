@@ -104,16 +104,14 @@ const generateReactionTypeRanking = (
  * ランキングを計算
  */
 export const calculateRankings = async (
-  channelIds: string[],
+  channelId: string,
   oldest: number,
   latest: number
 ): Promise<RankingResults> => {
   const data = initializeAggregationData();
 
-  // 全チャンネルのメッセージを集計
-  for (const channelId of channelIds) {
-    await aggregateChannelMessages(channelId, oldest, latest, data);
-  }
+  // チャンネルのメッセージを集計
+  await aggregateChannelMessages(channelId, oldest, latest, data);
 
   // ユーザーランキング生成
   const sortedThreadReactions = generateThreadReactionRanking(data);

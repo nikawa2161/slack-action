@@ -6,13 +6,13 @@ import { UserRankingWithName } from "./userNameResolver";
  */
 export const logMessageRanking = (
   title: string,
-  messages: MessageRanking[]
+  messages: MessageRanking[],
 ): void => {
   console.log(`\n${title}:`);
   messages.forEach((msg, i) =>
     console.log(
-      `   ${i + 1}位: ${msg.text.substring(0, 30)}... - ${msg.count}回`
-    )
+      `   ${i + 1}位: ${msg.text.substring(0, 30)}... - ${msg.count}回`,
+    ),
   );
 };
 
@@ -21,11 +21,11 @@ export const logMessageRanking = (
  */
 export const logUserRanking = (
   title: string,
-  users: UserRankingWithName[]
+  users: UserRankingWithName[],
 ): void => {
   console.log(`\n${title}:`);
   users.forEach((user, i) =>
-    console.log(`   ${i + 1}位: ${user.userName} - ${user.count}回`)
+    console.log(`   ${i + 1}位: ${user.userName} - ${user.count}回`),
   );
 };
 
@@ -34,11 +34,11 @@ export const logUserRanking = (
  */
 export const logReactionTypeRanking = (
   title: string,
-  reactions: [string, number][]
+  reactions: [string, number][],
 ): void => {
   console.log(`\n${title}:`);
   reactions.forEach(([reaction, count], i) =>
-    console.log(`   ${i + 1}位: :${reaction}: - ${count}回`)
+    console.log(`   ${i + 1}位: :${reaction}: - ${count}回`),
   );
 };
 
@@ -47,14 +47,12 @@ export const logReactionTypeRanking = (
  */
 export const logAggregationInfo = (
   dateRange: { startFormatted: string; endFormatted: string },
-  channels: { id: string; name: string }[],
-  searchTerms: string[]
+  channel: { id: string; name: string },
+  channelName: string,
 ): void => {
   console.log(
-    `\n📅 集計期間: ${dateRange.startFormatted} ～ ${dateRange.endFormatted}`
+    `\n📅 集計期間: ${dateRange.startFormatted} ～ ${dateRange.endFormatted}`,
   );
-  console.log(`🔍 検索キーワード: ${searchTerms.join(", ")}\n`);
-  console.log(`📺 対象チャンネル数: ${channels.length}`);
-  channels.forEach((ch) => console.log(`   - #${ch.name} (${ch.id})`));
+  console.log(`📺 対象チャンネル: #${channelName} (${channel.id})`);
   console.log("\n⏳ メッセージとリアクションを集計中...\n");
 };
