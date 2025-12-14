@@ -32,7 +32,7 @@ const aggregateChannelMessages = async (
   oldest: number,
   latest: number,
   data: AggregationData,
-  filterKeyword?: string
+  filterKeyword?: string,
 ): Promise<void> => {
   const messages = await getMessages(channelId, oldest, latest);
 
@@ -57,22 +57,62 @@ const aggregateChannelMessages = async (
  * メッセージランキングを生成
  */
 const generateMessageRankings = (data: AggregationData) => {
+  const limit = 3;
+
   // リアクション数ランキング
-  const topReactionMessages = Array.from(data.messageReactionCounts.values())
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 3);
+  const sortedReactionMessages = Array.from(
+    data.messageReactionCounts.values(),
+  ).sort((a, b) => b.count - a.count);
+
+  const topReactionMessages = [];
+  let currentRank = 1;
+  let previousCount: number | null = null;
+
+  for (let i = 0; i < sortedReactionMessages.length; i++) {
+    const message = sortedReactionMessages[i];
+
+    if (previousCount !== null && message.count !== previousCount) {
+      currentRank = i + 1;
+    }
+
+    if (currentRank > limit) {
+      break;
+    }
+
+    topReactionMessages.push(message);
+    previousCount = message.count;
+  }
 
   // スレッド返信数ランキング
-  const topThreadMessages = Array.from(data.messageThreadCounts.values())
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 3);
+  const sortedThreadMessages = Array.from(
+    data.messageThreadCounts.values(),
+  ).sort((a, b) => b.count - a.count);
+
+  const topThreadMessages = [];
+  currentRank = 1;
+  previousCount = null;
+
+  for (let i = 0; i < sortedThreadMessages.length; i++) {
+    const message = sortedThreadMessages[i];
+
+    if (previousCount !== null && message.count !== previousCount) {
+      currentRank = i + 1;
+    }
+
+    if (currentRank > limit) {
+      break;
+    }
+
+    topThreadMessages.push(message);
+    previousCount = message.count;
+  }
 
   // 総反応数（リアクション + スレッド数）ランキング
   const totalEngagementMap = new Map(
     Array.from(data.messageReactionCounts.entries()).map(([key, value]) => [
       key,
       { ...value },
-    ])
+    ]),
   );
 
   data.messageThreadCounts.forEach((threadData, key) => {
@@ -84,9 +124,28 @@ const generateMessageRankings = (data: AggregationData) => {
     }
   });
 
-  const topTotalEngagementMessages = Array.from(totalEngagementMap.values())
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 3);
+  const sortedTotalEngagementMessages = Array.from(
+    totalEngagementMap.values(),
+  ).sort((a, b) => b.count - a.count);
+
+  const topTotalEngagementMessages = [];
+  currentRank = 1;
+  previousCount = null;
+
+  for (let i = 0; i < sortedTotalEngagementMessages.length; i++) {
+    const message = sortedTotalEngagementMessages[i];
+
+    if (previousCount !== null && message.count !== previousCount) {
+      currentRank = i + 1;
+    }
+
+    if (currentRank > limit) {
+      break;
+    }
+
+    topTotalEngagementMessages.push(message);
+    previousCount = message.count;
+  }
 
   return {
     topReactionMessages,
@@ -99,11 +158,33 @@ const generateMessageRankings = (data: AggregationData) => {
  * リアクション種類ランキングを生成
  */
 const generateReactionTypeRanking = (
-  data: AggregationData
+  data: AggregationData,
 ): [string, number][] => {
-  return Object.entries(data.reactionTypeCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 3);
+  const limit = 3;
+  const sorted = Object.entries(data.reactionTypeCounts).sort(
+    (a, b) => b[1] - a[1],
+  );
+
+  const result: [string, number][] = [];
+  let currentRank = 1;
+  let previousCount: number | null = null;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const [reaction, count] = sorted[i];
+
+    if (previousCount !== null && count !== previousCount) {
+      currentRank = i + 1;
+    }
+
+    if (currentRank > limit) {
+      break;
+    }
+
+    result.push([reaction, count]);
+    previousCount = count;
+  }
+
+  return result;
 };
 
 /**
@@ -113,7 +194,7 @@ export const calculateRankings = async (
   channelId: string,
   oldest: number,
   latest: number,
-  filterKeyword?: string
+  filterKeyword?: string,
 ): Promise<RankingResults> => {
   const data = initializeAggregationData();
 
@@ -123,7 +204,7 @@ export const calculateRankings = async (
     oldest,
     latest,
     data,
-    filterKeyword
+    filterKeyword,
   );
 
   // ユーザーランキング生成
