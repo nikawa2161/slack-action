@@ -5,7 +5,7 @@ import { AggregationData } from "@/types/aggregation";
  */
 export const generateThreadReactionRanking = (
   data: AggregationData,
-  limit: number = 3
+  limit: number = 3,
 ): [string, number][] => {
   return Object.entries(data.threadReactionCounts)
     .sort((a, b) => b[1] - a[1])
@@ -17,7 +17,7 @@ export const generateThreadReactionRanking = (
  */
 export const generateUserReactionRanking = (
   data: AggregationData,
-  limit: number = 3
+  limit: number = 3,
 ): [string, number][] => {
   return Object.entries(data.userReactionCounts)
     .sort((a, b) => b[1] - a[1])
@@ -29,10 +29,9 @@ export const generateUserReactionRanking = (
  */
 export const generateNonCreatorReplyRanking = (
   data: AggregationData,
-  limit: number = 3
+  limit: number = 3,
 ): [string, number][] => {
   return Object.entries(data.nonCreatorReplyCounts)
-    .map(([user, threads]) => [user, threads.size] as [string, number])
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit);
 };

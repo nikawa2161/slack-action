@@ -1,6 +1,10 @@
 import "dotenv/config";
 import { Request, Response } from "express";
-import { TARGET_CHANNEL_NAME, POST_CHANNEL_NAME } from "@/constants/";
+import {
+  TARGET_CHANNEL_NAME,
+  POST_CHANNEL_NAME,
+  THREAD_FILTER_KEYWORD,
+} from "@/constants/";
 import {
   calculateRankings,
   createClosingMessageBlocks,
@@ -31,7 +35,7 @@ import { SlackBlock, RankingResults } from "@/types";
  * ランキング結果をコンソールに出力
  */
 const logRankingResults = async (
-  rankings: RankingResults
+  rankings: RankingResults,
 ): Promise<Record<string, string>> => {
   const {
     sortedUserReactions,
@@ -55,11 +59,11 @@ const logRankingResults = async (
   logMessageRanking("💬 スレッドが伸びた記事", topThreadMessages);
   logUserRanking(
     "✋ リアクションした回数が多い人",
-    attachUserNamesToRanking(sortedUserReactions, userIdToName)
+    attachUserNamesToRanking(sortedUserReactions, userIdToName),
   );
   logUserRanking(
     "💬 スレッドのやりとりした回数が多い人",
-    attachUserNamesToRanking(sortedNonCreatorReplies, userIdToName)
+    attachUserNamesToRanking(sortedNonCreatorReplies, userIdToName),
   );
   logReactionTypeRanking("😊 よく使われたリアクション", topReactionTypes);
   logMessageRanking("🔥 総反応数が多い記事", topTotalEngagementMessages);
@@ -73,7 +77,7 @@ const logRankingResults = async (
 const buildSlackMessageBlocks = (
   rankings: RankingResults,
   userIdToName: Record<string, string>,
-  dateRange: { startFormatted: string; endFormatted: string }
+  dateRange: { startFormatted: string; endFormatted: string },
 ): SlackBlock[] => {
   const {
     sortedUserReactions,
@@ -87,31 +91,31 @@ const buildSlackMessageBlocks = (
   return [
     ...createOpeningMessageBlocks(
       dateRange.startFormatted,
-      dateRange.endFormatted
+      dateRange.endFormatted,
     ),
     ...createMessageRankingBlocks(
       `📝 *リアクションが多かった記事トップ${topReactionMessages.length}*`,
-      topReactionMessages
+      topReactionMessages,
     ),
     ...createMessageRankingBlocks(
       `💬 *スレッドが伸びた記事トップ${topThreadMessages.length}*`,
-      topThreadMessages
+      topThreadMessages,
     ),
     ...createUserRankingBlocks(
       `✋ *リアクションした回数が多い人トップ${sortedUserReactions.length}*`,
-      attachUserNamesToRanking(sortedUserReactions, userIdToName)
+      attachUserNamesToRanking(sortedUserReactions, userIdToName),
     ),
     ...createUserRankingBlocks(
       `💬 *スレッドのやりとりした回数が多い人トップ${sortedNonCreatorReplies.length}*`,
-      attachUserNamesToRanking(sortedNonCreatorReplies, userIdToName)
+      attachUserNamesToRanking(sortedNonCreatorReplies, userIdToName),
     ),
     ...createReactionTypeRankingBlocks(
       `😊 *よく使われたリアクショントップ${topReactionTypes.length}*`,
-      topReactionTypes
+      topReactionTypes,
     ),
     ...createMessageRankingBlocks(
       `🔥 *総反応数が多い記事トップ${topTotalEngagementMessages.length}*`,
-      topTotalEngagementMessages
+      topTotalEngagementMessages,
     ),
     ...createClosingMessageBlocks(),
   ];
@@ -136,7 +140,8 @@ const main = async () => {
   const rankings = await calculateRankings(
     channel.id,
     dateRange.start.toSeconds(),
-    dateRange.end.toSeconds()
+    dateRange.end.toSeconds(),
+    THREAD_FILTER_KEYWORD,
   );
 
   console.log("✅ 集計完了！\n");

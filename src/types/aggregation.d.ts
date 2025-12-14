@@ -11,7 +11,7 @@ export interface AggregationData {
   // ユーザー関連の集計
   threadReactionCounts: Record<string, number>;
   userReactionCounts: Record<string, number>;
-  nonCreatorReplyCounts: Record<string, Set<string>>;
+  nonCreatorReplyCounts: Record<string, number>;
 
   // リアクション種類の集計
   reactionTypeCounts: Record<string, number>;

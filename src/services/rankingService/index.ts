@@ -31,11 +31,17 @@ const aggregateChannelMessages = async (
   channelId: string,
   oldest: number,
   latest: number,
-  data: AggregationData
+  data: AggregationData,
+  filterKeyword?: string
 ): Promise<void> => {
   const messages = await getMessages(channelId, oldest, latest);
 
   for (const message of messages) {
+    // フィルタキーワードが指定されている場合、メッセージテキストに含まれているかチェック
+    if (filterKeyword && !message.text?.includes(filterKeyword)) {
+      continue;
+    }
+
     // 親メッセージのリアクションを集計
     aggregateParentMessageReactions(message, channelId, data);
 
@@ -106,12 +112,19 @@ const generateReactionTypeRanking = (
 export const calculateRankings = async (
   channelId: string,
   oldest: number,
-  latest: number
+  latest: number,
+  filterKeyword?: string
 ): Promise<RankingResults> => {
   const data = initializeAggregationData();
 
   // チャンネルのメッセージを集計
-  await aggregateChannelMessages(channelId, oldest, latest, data);
+  await aggregateChannelMessages(
+    channelId,
+    oldest,
+    latest,
+    data,
+    filterKeyword
+  );
 
   // ユーザーランキング生成
   const sortedThreadReactions = generateThreadReactionRanking(data);
