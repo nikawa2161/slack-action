@@ -17,3 +17,14 @@ export interface SlackMessage {
   reply_count?: number;
   reactions?: SlackReaction[];
 }
+
+/**
+ * Slack Block Kit のブロック型
+ */
+export interface SlackBlock {
+  type: "section" | "divider" | "header" | "context";
+  text?: {
+    type: "mrkdwn" | "plain_text";
+    text: string;
+  };
+}

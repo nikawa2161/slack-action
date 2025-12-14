@@ -1,0 +1,60 @@
+import { MessageRanking } from "@/types";
+import { UserRankingWithName } from "./userNameResolver";
+
+/**
+ * メッセージランキングをコンソールに出力
+ */
+export function logMessageRanking(
+  title: string,
+  messages: MessageRanking[],
+): void {
+  console.log(`\n${title}:`);
+  messages.forEach((msg, i) =>
+    console.log(
+      `   ${i + 1}位: ${msg.text.substring(0, 30)}... - ${msg.count}回`,
+    ),
+  );
+}
+
+/**
+ * ユーザーランキングをコンソールに出力
+ */
+export function logUserRanking(
+  title: string,
+  users: UserRankingWithName[],
+): void {
+  console.log(`\n${title}:`);
+  users.forEach((user, i) =>
+    console.log(`   ${i + 1}位: ${user.userName} - ${user.count}回`),
+  );
+}
+
+/**
+ * リアクション種類ランキングをコンソールに出力
+ */
+export function logReactionTypeRanking(
+  title: string,
+  reactions: [string, number][],
+): void {
+  console.log(`\n${title}:`);
+  reactions.forEach(([reaction, count], i) =>
+    console.log(`   ${i + 1}位: :${reaction}: - ${count}回`),
+  );
+}
+
+/**
+ * 集計期間と対象チャンネルを出力
+ */
+export function logAggregationInfo(
+  dateRange: { startFormatted: string; endFormatted: string },
+  channels: { id: string; name: string }[],
+  searchTerms: string[],
+): void {
+  console.log(
+    `\n📅 集計期間: ${dateRange.startFormatted} ～ ${dateRange.endFormatted}`,
+  );
+  console.log(`🔍 検索キーワード: ${searchTerms.join(", ")}\n`);
+  console.log(`📺 対象チャンネル数: ${channels.length}`);
+  channels.forEach((ch) => console.log(`   - #${ch.name} (${ch.id})`));
+  console.log("\n⏳ メッセージとリアクションを集計中...\n");
+}
