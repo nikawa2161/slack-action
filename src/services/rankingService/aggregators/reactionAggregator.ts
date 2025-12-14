@@ -7,25 +7,24 @@ import { AggregationData } from "@/types/aggregation";
 export const aggregateParentMessageReactions = (
   message: SlackMessage,
   channelId: string,
-  data: AggregationData
+  data: AggregationData,
 ): void => {
   if (message.thread_ts || !message.reactions) return;
 
   const messageKey = `${channelId}:${message.ts}`;
-  let totalReactions = 0;
 
-  for (const reaction of message.reactions) {
+  const totalReactions = message.reactions.reduce((total, reaction) => {
     // スレッド作成者へのリアクション数を加算
     data.threadReactionCounts[message.user] =
       (data.threadReactionCounts[message.user] || 0) +
       reaction.count * reaction.users.length;
 
-    totalReactions += reaction.count;
-
     // リアクション種類を集計
     data.reactionTypeCounts[reaction.name] =
       (data.reactionTypeCounts[reaction.name] || 0) + reaction.count;
-  }
+
+    return total + reaction.count;
+  }, 0);
 
   // メッセージごとのリアクション数を記録
   data.messageReactionCounts.set(messageKey, {
@@ -41,29 +40,28 @@ export const aggregateParentMessageReactions = (
  */
 export const aggregateThreadReplyReactions = (
   replies: SlackMessage[],
-  data: AggregationData
+  data: AggregationData,
 ): number => {
-  let threadRepliesReactionCount = 0;
+  return replies.reduce((totalCount, reply) => {
+    if (!reply.reactions) return totalCount;
 
-  for (const reply of replies) {
-    if (!reply.reactions) continue;
+    return (
+      totalCount +
+      reply.reactions.reduce((replyTotal, reaction) => {
+        // ユーザーごとのリアクション数を集計
+        reaction.users.forEach((user) => {
+          data.userReactionCounts[user] =
+            (data.userReactionCounts[user] || 0) + 1;
+        });
 
-    for (const reaction of reply.reactions) {
-      // ユーザーごとのリアクション数を集計
-      for (const user of reaction.users) {
-        data.userReactionCounts[user] =
-          (data.userReactionCounts[user] || 0) + 1;
-      }
+        // リアクション種類を集計
+        data.reactionTypeCounts[reaction.name] =
+          (data.reactionTypeCounts[reaction.name] || 0) + reaction.count;
 
-      // リアクション種類を集計
-      data.reactionTypeCounts[reaction.name] =
-        (data.reactionTypeCounts[reaction.name] || 0) + reaction.count;
-
-      threadRepliesReactionCount += reaction.count;
-    }
-  }
-
-  return threadRepliesReactionCount;
+        return replyTotal + reaction.count;
+      }, 0)
+    );
+  }, 0);
 };
 
 /**
@@ -74,7 +72,7 @@ export const addThreadReactionsToParent = (
   messageTs: string,
   messageText: string,
   reactionCount: number,
-  data: AggregationData
+  data: AggregationData,
 ): void => {
   if (reactionCount === 0) return;
 
