@@ -10,7 +10,7 @@ export interface DateRange {
 /**
  * 先月の期間を計算する
  */
-export function calculateLastMonthRange(): DateRange {
+export const calculateLastMonthRange = (): DateRange => {
   const now = DateTime.now();
   const start = now.minus({ months: 1 }).startOf("month");
   const end = now.minus({ months: 1 }).endOf("month");
@@ -21,4 +21,4 @@ export function calculateLastMonthRange(): DateRange {
     startFormatted: start.toFormat("yyyy/MM/dd"),
     endFormatted: end.toFormat("yyyy/MM/dd"),
   };
-}
+};

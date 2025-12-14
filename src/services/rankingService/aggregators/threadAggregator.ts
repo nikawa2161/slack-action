@@ -9,11 +9,11 @@ import {
 /**
  * スレッドの返信数を集計
  */
-export function aggregateThreadReplyCounts(
+export const aggregateThreadReplyCounts = (
   message: SlackMessage,
   channelId: string,
-  data: AggregationData,
-): void {
+  data: AggregationData
+): void => {
   if (!message.reply_count || message.reply_count === 0) return;
 
   const messageKey = `${channelId}:${message.ts}`;
@@ -23,17 +23,17 @@ export function aggregateThreadReplyCounts(
     text: message.text || "(メッセージ内容なし)",
     count: message.reply_count,
   });
-}
+};
 
 /**
  * スレッド作成者以外の返信回数を集計
  */
-export function aggregateNonCreatorReplies(
+export const aggregateNonCreatorReplies = (
   replies: SlackMessage[],
   threadCreator: string,
   threadTs: string,
-  data: AggregationData,
-): void {
+  data: AggregationData
+): void => {
   for (const reply of replies.slice(1)) {
     if (reply.user === threadCreator) continue;
 
@@ -42,16 +42,16 @@ export function aggregateNonCreatorReplies(
     }
     data.nonCreatorReplyCounts[reply.user].add(threadTs);
   }
-}
+};
 
 /**
  * スレッド全体（返信とリアクション）を集計
  */
-export async function aggregateThreadData(
+export const aggregateThreadData = async (
   message: SlackMessage,
   channelId: string,
-  data: AggregationData,
-): Promise<void> {
+  data: AggregationData
+): Promise<void> => {
   if (!message.reply_count || message.reply_count === 0) return;
 
   const replies = await getReplies(channelId, message.ts);
@@ -59,7 +59,7 @@ export async function aggregateThreadData(
   // スレッド内返信のリアクション数を集計
   const threadRepliesReactionCount = aggregateThreadReplyReactions(
     replies,
-    data,
+    data
   );
 
   // 親メッセージのリアクション数に加算
@@ -68,9 +68,9 @@ export async function aggregateThreadData(
     message.ts,
     message.text || "(メッセージ内容なし)",
     threadRepliesReactionCount,
-    data,
+    data
   );
 
   // スレッド作成者以外の返信回数を集計
   aggregateNonCreatorReplies(replies, message.user, message.thread_ts!, data);
-}
+};

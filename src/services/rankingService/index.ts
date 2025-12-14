@@ -13,7 +13,7 @@ import {
 /**
  * 集計データの初期化
  */
-function initializeAggregationData(): AggregationData {
+const initializeAggregationData = (): AggregationData => {
   return {
     messageReactionCounts: new Map(),
     messageThreadCounts: new Map(),
@@ -22,17 +22,17 @@ function initializeAggregationData(): AggregationData {
     nonCreatorReplyCounts: {},
     reactionTypeCounts: {},
   };
-}
+};
 
 /**
  * 単一チャンネルのメッセージを集計
  */
-async function aggregateChannelMessages(
+const aggregateChannelMessages = async (
   channelId: string,
   oldest: number,
   latest: number,
-  data: AggregationData,
-): Promise<void> {
+  data: AggregationData
+): Promise<void> => {
   const messages = await getMessages(channelId, oldest, latest);
 
   for (const message of messages) {
@@ -45,12 +45,12 @@ async function aggregateChannelMessages(
     // スレッド全体（返信とリアクション）を集計
     await aggregateThreadData(message, channelId, data);
   }
-}
+};
 
 /**
  * メッセージランキングを生成
  */
-function generateMessageRankings(data: AggregationData) {
+const generateMessageRankings = (data: AggregationData) => {
   // リアクション数ランキング
   const topReactionMessages = Array.from(data.messageReactionCounts.values())
     .sort((a, b) => b.count - a.count)
@@ -66,7 +66,7 @@ function generateMessageRankings(data: AggregationData) {
     Array.from(data.messageReactionCounts.entries()).map(([key, value]) => [
       key,
       { ...value },
-    ]),
+    ])
   );
 
   data.messageThreadCounts.forEach((threadData, key) => {
@@ -87,27 +87,27 @@ function generateMessageRankings(data: AggregationData) {
     topThreadMessages,
     topTotalEngagementMessages,
   };
-}
+};
 
 /**
  * リアクション種類ランキングを生成
  */
-function generateReactionTypeRanking(
-  data: AggregationData,
-): [string, number][] {
+const generateReactionTypeRanking = (
+  data: AggregationData
+): [string, number][] => {
   return Object.entries(data.reactionTypeCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3);
-}
+};
 
 /**
  * ランキングを計算
  */
-export async function calculateRankings(
+export const calculateRankings = async (
   channelIds: string[],
   oldest: number,
-  latest: number,
-): Promise<RankingResults> {
+  latest: number
+): Promise<RankingResults> => {
   const data = initializeAggregationData();
 
   // 全チャンネルのメッセージを集計
@@ -136,7 +136,7 @@ export async function calculateRankings(
     topTotalEngagementMessages,
     topReactionTypes,
   };
-}
+};
 
 // ブロック作成関数はformattersからre-export
 export {

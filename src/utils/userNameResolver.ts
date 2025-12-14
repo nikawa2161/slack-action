@@ -9,9 +9,9 @@ export interface UserRankingWithName {
 /**
  * ユーザーIDの配列からユーザー名マップを作成
  */
-export async function resolveUserNames(
-  userIds: Set<string>,
-): Promise<Record<string, string>> {
+export const resolveUserNames = async (
+  userIds: Set<string>
+): Promise<Record<string, string>> => {
   const userIdToName: Record<string, string> = {};
 
   for (const userId of userIds) {
@@ -19,18 +19,18 @@ export async function resolveUserNames(
   }
 
   return userIdToName;
-}
+};
 
 /**
  * ユーザーランキングにユーザー名を追加
  */
-export function attachUserNamesToRanking(
+export const attachUserNamesToRanking = (
   ranking: [string, number][],
-  userNameMap: Record<string, string>,
-): UserRankingWithName[] {
+  userNameMap: Record<string, string>
+): UserRankingWithName[] => {
   return ranking.map(([userId, count]) => ({
     userId,
     userName: userNameMap[userId],
     count,
   }));
-}
+};

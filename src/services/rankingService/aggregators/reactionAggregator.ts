@@ -4,11 +4,11 @@ import { AggregationData } from "@/types/aggregation";
 /**
  * メッセージのリアクションを集計（親メッセージ）
  */
-export function aggregateParentMessageReactions(
+export const aggregateParentMessageReactions = (
   message: SlackMessage,
   channelId: string,
-  data: AggregationData,
-): void {
+  data: AggregationData
+): void => {
   if (message.thread_ts || !message.reactions) return;
 
   const messageKey = `${channelId}:${message.ts}`;
@@ -34,15 +34,15 @@ export function aggregateParentMessageReactions(
     text: message.text || "(メッセージ内容なし)",
     count: totalReactions,
   });
-}
+};
 
 /**
  * スレッド内返信のリアクションを集計
  */
-export function aggregateThreadReplyReactions(
+export const aggregateThreadReplyReactions = (
   replies: SlackMessage[],
-  data: AggregationData,
-): number {
+  data: AggregationData
+): number => {
   let threadRepliesReactionCount = 0;
 
   for (const reply of replies) {
@@ -64,18 +64,18 @@ export function aggregateThreadReplyReactions(
   }
 
   return threadRepliesReactionCount;
-}
+};
 
 /**
  * スレッド内返信のリアクション数を親メッセージに加算
  */
-export function addThreadReactionsToParent(
+export const addThreadReactionsToParent = (
   channelId: string,
   messageTs: string,
   messageText: string,
   reactionCount: number,
-  data: AggregationData,
-): void {
+  data: AggregationData
+): void => {
   if (reactionCount === 0) return;
 
   const messageKey = `${channelId}:${messageTs}`;
@@ -92,4 +92,4 @@ export function addThreadReactionsToParent(
       count: reactionCount,
     });
   }
-}
+};

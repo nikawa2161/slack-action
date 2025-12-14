@@ -6,9 +6,9 @@ const web = new WebClient(process.env.VITE_SLACK_TOKEN);
 // ユーザー名のキャッシュ
 const userNameCache: Record<string, string> = {};
 
-export async function getChannels(
-  searchTerms: string[],
-): Promise<SlackChannel[]> {
+export const getChannels = async (
+  searchTerms: string[]
+): Promise<SlackChannel[]> => {
   const response = await web.conversations.list({
     exclude_archived: true,
     limit: 999,
@@ -16,17 +16,17 @@ export async function getChannels(
 
   const channels = (response.channels || []) as SlackChannel[];
   const filteredChannels = channels.filter((channel) =>
-    searchTerms.some((term) => channel.name?.includes(term)),
+    searchTerms.some((term) => channel.name?.includes(term))
   );
 
   return filteredChannels;
-}
+};
 
-export async function getMessages(
+export const getMessages = async (
   channelId: string,
   oldest: number,
-  latest: number,
-): Promise<SlackMessage[]> {
+  latest: number
+): Promise<SlackMessage[]> => {
   const response = await web.conversations.history({
     channel: channelId,
     oldest: oldest.toString(),
@@ -34,20 +34,20 @@ export async function getMessages(
   });
 
   return (response.messages || []) as SlackMessage[];
-}
+};
 
-export async function getReplies(
+export const getReplies = async (
   channelId: string,
-  threadTs: string,
-): Promise<SlackMessage[]> {
+  threadTs: string
+): Promise<SlackMessage[]> => {
   const response = await web.conversations.replies({
     channel: channelId,
     ts: threadTs,
   });
   return (response.messages || []) as SlackMessage[];
-}
+};
 
-export async function getUserName(userId: string): Promise<string> {
+export const getUserName = async (userId: string): Promise<string> => {
   // キャッシュにあればそれを返す
   if (userNameCache[userId]) {
     return userNameCache[userId];
@@ -66,12 +66,12 @@ export async function getUserName(userId: string): Promise<string> {
     console.error(`ユーザー情報取得エラー (${userId}):`, error);
     return userId; // エラー時はIDをそのまま返す
   }
-}
+};
 
-export async function sendSlackMessage(
+export const sendSlackMessage = async (
   channelId: string,
-  blocks: SlackBlock[],
-): Promise<void> {
+  blocks: SlackBlock[]
+): Promise<void> => {
   // Slackへ投稿する場合はコメントを外す
   // const result = await web.chat.postMessage({
   //   channel: channelId,
@@ -94,4 +94,4 @@ export async function sendSlackMessage(
     }
   });
   console.log("================================================\n");
-}
+};

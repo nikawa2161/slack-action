@@ -9,22 +9,15 @@ interface RankingBlockConfig<T> {
   data: T[];
   formatItem: (item: T, index: number) => string;
   emptyMessage?: string;
-  useMedals?: boolean;
 }
 
 /**
  * 汎用ランキングブロック生成
  */
-function createRankingBlocks<T>(config: RankingBlockConfig<T>): SlackBlock[] {
-  const {
-    title,
-    data,
-    formatItem,
-    emptyMessage = "該当なし…！！",
-    useMedals = true,
-  } = config;
-
-  const medals = ["🥇", "🥈", "🥉"];
+const createRankingBlocks = <T>(
+  config: RankingBlockConfig<T>
+): SlackBlock[] => {
+  const { title, data, formatItem, emptyMessage = "該当なし…！！" } = config;
 
   return [
     {
@@ -48,35 +41,37 @@ function createRankingBlocks<T>(config: RankingBlockConfig<T>): SlackBlock[] {
       type: "divider",
     },
   ];
-}
+};
 
 /**
  * メッセージランキングブロック作成
  */
-export function createMessageRankingBlocks(
+export const createMessageRankingBlocks = (
   title: string,
-  data: MessageRanking[],
-): SlackBlock[] {
+  data: MessageRanking[]
+): SlackBlock[] => {
   return createRankingBlocks({
     title,
     data,
     formatItem: (item, index) => {
       const medals = ["🥇", "🥈", "🥉"];
-      const messageLink = `https://slack.com/archives/${item.channelId}/p${item.messageTs.replace(".", "")}`;
+      const messageLink = `https://slack.com/archives/${
+        item.channelId
+      }/p${item.messageTs.replace(".", "")}`;
       const truncatedText =
         item.text.length > 50 ? item.text.substring(0, 50) + "..." : item.text;
       return `${medals[index]} <${messageLink}|${truncatedText}>: ${item.count}回`;
     },
   });
-}
+};
 
 /**
  * ユーザーランキングブロック作成（ユーザー名解決済み）
  */
-export function createUserRankingBlocks(
+export const createUserRankingBlocks = (
   title: string,
-  data: UserRankingWithName[],
-): SlackBlock[] {
+  data: UserRankingWithName[]
+): SlackBlock[] => {
   return createRankingBlocks({
     title,
     data,
@@ -86,15 +81,15 @@ export function createUserRankingBlocks(
     },
     emptyMessage: "該当者なし…！！",
   });
-}
+};
 
 /**
  * リアクション種類ランキングブロック作成
  */
-export function createReactionTypeRankingBlocks(
+export const createReactionTypeRankingBlocks = (
   title: string,
-  data: [string, number][],
-): SlackBlock[] {
+  data: [string, number][]
+): SlackBlock[] => {
   return createRankingBlocks({
     title,
     data,
@@ -104,15 +99,15 @@ export function createReactionTypeRankingBlocks(
       return `${medals[index]} :${reactionName}: : ${count}回`;
     },
   });
-}
+};
 
 /**
  * 開始メッセージブロック作成
  */
-export function createOpeningMessageBlocks(
+export const createOpeningMessageBlocks = (
   startDate: string,
-  endDate: string,
-): SlackBlock[] {
+  endDate: string
+): SlackBlock[] => {
   return [
     {
       type: "section",
@@ -125,12 +120,12 @@ export function createOpeningMessageBlocks(
       type: "divider",
     },
   ];
-}
+};
 
 /**
  * 終了メッセージブロック作成
  */
-export function createClosingMessageBlocks(): SlackBlock[] {
+export const createClosingMessageBlocks = (): SlackBlock[] => {
   return [
     {
       type: "section",
@@ -143,4 +138,4 @@ export function createClosingMessageBlocks(): SlackBlock[] {
       type: "divider",
     },
   ];
-}
+};
